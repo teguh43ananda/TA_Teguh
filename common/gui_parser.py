@@ -370,19 +370,12 @@ class UARTParser():
 
             # Write header if the file is empty
             if csvFile.tell() == 0:
-                writer.writerow(
-                    ['timestamp','numFrame', 'x', 'y', 'z', 'doppler', 'SNR', 'Range', 'Azimuth', 'Elevation'])
+                writer.writerow(['timestamp', 'frame', 'x', 'y', 'z', 'doppler', 'SNR'])
 
             frameNum = frameData['frameData'].get('frameNum', 0)
             pointCloud = frameData['frameData'].get('pointCloud', [])
 
             # Write each point to the CSV
-            for idx, point in enumerate(pointCloud, start=1):
-                # print(f"Point data: {point}")
+            for point in pointCloud:
                 x, y, z, doppler, snr = point[:5]
-                range_target = np.sqrt(x**2 + y**2 + z**2)
-                azimuth_rad = np.arctan2(y, x)
-                azimuth_deg = np.degrees(azimuth_rad)
-                elevation_rad = np.arctan2(z, np.sqrt(x**2 + y**2))
-                elevation_deg = np.degrees(elevation_rad)
-                writer.writerow([timestamp, idx, x, y, z, doppler, snr, range_target, azimuth_deg, elevation_deg])
+                writer.writerow([timestamp, frameNum, x, y, z, doppler, snr])

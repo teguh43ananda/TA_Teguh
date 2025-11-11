@@ -1,6 +1,8 @@
 # General Library Imports
 import numpy as np
 import time
+import os, glob  
+
 # PyQt imports
 from PySide2.QtCore import QThread, Signal
 import pyqtgraph as pg
@@ -36,18 +38,39 @@ TRACK_INDEX_WEAK_SNR = 253  # Point not associated, SNR too weak
 TRACK_INDEX_BOUNDS = 254  # Point not associated, located outside boundary of interest
 TRACK_INDEX_NOISE = 255  # Point not associated, considered as noise
 
+def _ensure_subject_dir(subject_name: str) -> str:
+    base = os.path.join('./dataset', subject_name)
+    os.makedirs(base, exist_ok=True)
+    return base
+
+def _next_jalan_id(subject_dir: str) -> str:
+    # Cari file Jalan*.csv untuk menentukan N berikutnya
+    files = glob.glob(os.path.join(subject_dir, 'Jalan*.csv'))
+    Ns = []
+    for fp in files:
+        name = os.path.splitext(os.path.basename(fp))[0]  # "JalanN"
+        if name.startswith('Jalan'):
+            try:
+                Ns.append(int(name.replace('Jalan','')))
+            except:
+                pass
+    N = (max(Ns) + 1) if Ns else 1
+    return f'Jalan{N}.csv'
+
 
 class parseUartThread(QThread):
     fin = Signal(dict)
 
     def __init__(self, uParser):
-        QThread.__init__(self)
-        self.parser = uParser
+        QThread.__init__(self)         
+        self.parser = uParser           
 
-        self.timestamp = time.strftime("%m%d%Y%H%M%S")
-        self.outputDir = f'./dataset/{self.timestamp}'
-        # Ensure the directory is created only once
-        os.makedirs(self.outputDir, exist_ok=True)
+        self.subject_name = "Afi"  
+
+        self.subject_dir = _ensure_subject_dir(self.subject_name)
+
+        self.session_csv = os.path.join(self.subject_dir, _next_jalan_id(self.subject_dir))
+
 
     def run(self):
         if self.parser.parserType == "SingleCOMPort":
@@ -63,13 +86,10 @@ class parseUartThread(QThread):
             frameJSON = {'frameData': outputDict,
                          'timestamp': time.time() * 1000}
             self.parser.frames.append(frameJSON)
-            csvFilePath = f'{self.outputDir}/dataset.csv'
 
-            # Simpan CSV
+            csvFilePath = self.session_csv
+
             self.parser.saveDataToCsv(csvFilePath, frameJSON)
-
-    def stop(self):
-        self.terminate()
 
     def stop(self):
         self.terminate()
