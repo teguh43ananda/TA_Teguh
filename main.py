@@ -16,6 +16,7 @@ from PySide2.QtCore import Qt
 from gui_core import Window
 
 # Demo List
+
 from common.demo_defines import *
 
 # Logging (possible levels: DEBUG, INFO, WARNING, ERROR, CRITICAL)

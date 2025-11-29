@@ -39,7 +39,7 @@ TRACK_INDEX_BOUNDS = 254  # Point not associated, located outside boundary of in
 TRACK_INDEX_NOISE = 255  # Point not associated, considered as noise
 
 def _ensure_subject_dir(subject_name: str) -> str:
-    base = os.path.join('./dataset', subject_name)
+    base = os.path.join('./dataset2', subject_name)
     os.makedirs(base, exist_ok=True)
     return base
 
@@ -65,7 +65,7 @@ class parseUartThread(QThread):
         QThread.__init__(self)         
         self.parser = uParser           
 
-        self.subject_name = "Miftah"  
+        self.subject_name = "Tsania"  
 
         self.subject_dir = _ensure_subject_dir(self.subject_name)
 
