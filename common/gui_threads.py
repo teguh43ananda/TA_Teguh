@@ -65,7 +65,7 @@ class parseUartThread(QThread):
         QThread.__init__(self)         
         self.parser = uParser           
 
-        self.subject_name = "F"  
+        self.subject_name = "H"  
 
         self.subject_dir = _ensure_subject_dir(self.subject_name)
 
